@@ -7,7 +7,7 @@ const DEFAULT_SLUG = "f70ecc91f9";
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: <Navigate to={`/checkout/${DEFAULT_SLUG}`} replace />,
+    element: <MerchantPage />,
   },
   {
     path: "/checkout/:slug",
@@ -19,6 +19,6 @@ export const router = createBrowserRouter([
   },
   {
     path: "*",
-    element: <Navigate to={`/checkout/${DEFAULT_SLUG}`} replace />,
+    element: <Navigate to="/" replace />,
   },
 ]);
