@@ -12,7 +12,7 @@ import { FeeBreakdown } from "../components/FeeBreakdown";
 import { StatusBanner } from "../components/StatusBanner";
 
 const MAX_EXPIRY_DAYS = 10;
-const MERCHANT_ID = "34";
+const MERCHANT_ID = "1";
 const RECIPIENT_ID = "1";
 
 function addDays(base: Date, days: number) {
