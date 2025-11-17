@@ -12,7 +12,7 @@ import { FeeBreakdown } from "../components/FeeBreakdown";
 import { StatusBanner } from "../components/StatusBanner";
 
 const MAX_EXPIRY_DAYS = 10;
-const MERCHANT_ID = "1";
+const DEFAULT_MERCHANT_ID = "1";
 const RECIPIENT_ID = "1";
 
 function addDays(base: Date, days: number) {
@@ -30,6 +30,7 @@ export function MerchantPage() {
   const defaultExpiry = useMemo(() => toDateValue(addDays(new Date(), 1)), []);
   const maxExpiry = useMemo(() => toDateValue(addDays(new Date(), MAX_EXPIRY_DAYS)), []);
 
+  const [merchantId, setMerchantId] = useState(DEFAULT_MERCHANT_ID);
   const [amount, setAmount] = useState("100000");
   const [currency, setCurrency] = useState("USD");
   const [description, setDescription] = useState("");
@@ -85,7 +86,7 @@ export function MerchantPage() {
 
     try {
       const payload = {
-        merchantId: Number(MERCHANT_ID),
+        merchantId: Number(merchantId),
         recipientId: Number(RECIPIENT_ID),
         amount: Number(amount),
         currency,
@@ -170,7 +171,7 @@ export function MerchantPage() {
     setEditError(null);
     try {
       await updatePaymentLink(editingSlug, {
-        merchantId: Number(MERCHANT_ID),
+        merchantId: Number(merchantId),
         recipientId: Number(RECIPIENT_ID),
         amount: Number(editAmount),
         currency,
@@ -191,7 +192,7 @@ export function MerchantPage() {
   async function handleDelete(slug: string) {
     setDeletingSlug(slug);
     try {
-      await deletePaymentLink(slug, Number(MERCHANT_ID));
+      await deletePaymentLink(slug, Number(merchantId));
       await loadList();
     } catch (err: any) {
       console.error(err);
@@ -231,7 +232,15 @@ export function MerchantPage() {
           <h2>Crear payment link</h2>
           <form className="merchant-form" onSubmit={handleCreate}>
             <div className="field-row">
-              <input type="hidden" value={MERCHANT_ID} />
+              <div className="field">
+                <label>Merchant ID</label>
+                <input
+                  value={merchantId}
+                  onChange={(e) => setMerchantId(e.target.value)}
+                  required
+                  inputMode="numeric"
+                />
+              </div>
               <input type="hidden" value={RECIPIENT_ID} />
             </div>
 
