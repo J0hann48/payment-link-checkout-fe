@@ -30,8 +30,6 @@ export function MerchantPage() {
   const defaultExpiry = useMemo(() => toDateValue(addDays(new Date(), 1)), []);
   const maxExpiry = useMemo(() => toDateValue(addDays(new Date(), MAX_EXPIRY_DAYS)), []);
 
-  const [merchantId] = useState(MERCHANT_ID);
-  const [recipientId] = useState(RECIPIENT_ID);
   const [amount, setAmount] = useState("100000");
   const [currency, setCurrency] = useState("USD");
   const [description, setDescription] = useState("");
