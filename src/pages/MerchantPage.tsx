@@ -227,18 +227,7 @@ export function MerchantPage() {
         <div className="panel">
           <h2>Crear payment link</h2>
           <form className="merchant-form" onSubmit={handleCreate}>
-            <div className="field-row">
-              <div className="field">
-                <label>Merchant ID</label>
-                <input
-                  value={merchantId}
-                  onChange={(e) => setMerchantId(e.target.value)}
-                  required
-                  inputMode="numeric"
-                />
-              </div>
-              <input type="hidden" value={RECIPIENT_ID} />
-            </div>
+            <input type="hidden" value={RECIPIENT_ID} />
 
             <div className="field-row">
               <div className="field">
