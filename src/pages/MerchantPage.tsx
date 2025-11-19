@@ -9,6 +9,7 @@ import {
 } from "../api/paymentLinkApi";
 import { FeeBreakdown } from "../components/FeeBreakdown";
 import { StatusBanner } from "../components/StatusBanner";
+import { resolveCheckoutUrl } from "../utils/url";
 
 const MAX_EXPIRY_DAYS = 10;
 const DEFAULT_MERCHANT_ID = "1";
@@ -56,6 +57,16 @@ export function MerchantPage() {
   const [updating, setUpdating] = useState<boolean>(false);
   const [deletingSlug, setDeletingSlug] = useState<string | null>(null);
   const [copiedLink, setCopiedLink] = useState<boolean>(false);
+
+  const createdCheckoutUrl = useMemo(
+    () => (createdLink ? resolveCheckoutUrl(createdLink.checkoutUrl) : ""),
+    [createdLink]
+  );
+
+  const queriedCheckoutUrl = useMemo(
+    () => (queriedLink ? resolveCheckoutUrl(queriedLink.checkoutUrl) : ""),
+    [queriedLink]
+  );
 
   function normalizeError(err: any, fallback: string) {
     if (err?.code === "MERCHANT_NOT_FOUND") {
@@ -311,14 +322,14 @@ export function MerchantPage() {
             <div className="result-card">
               <StatusBanner type="success" message="Link creado" />
               <p><strong>Slug:</strong> {createdLink.slug}</p>
-              <p><strong>Checkout URL:</strong> {createdLink.checkoutUrl}</p>
+              <p><strong>Checkout URL:</strong> {createdCheckoutUrl}</p>
               <div className="cta-row">
                 <button
                   type="button"
                   className="link-button ghost"
                   onClick={async () => {
                     try {
-                      await navigator.clipboard.writeText(createdLink.checkoutUrl);
+                      await navigator.clipboard.writeText(createdCheckoutUrl);
                       setCopiedLink(true);
                       setTimeout(() => setCopiedLink(false), 2500);
                     } catch {
@@ -364,14 +375,14 @@ export function MerchantPage() {
                 <strong>Monto:</strong> {queriedLink.amount} {queriedLink.currency}
               </p>
               <p><strong>Status:</strong> {queriedLink.status}</p>
-              <p><strong>Checkout:</strong> {queriedLink.checkoutUrl}</p>
+              <p><strong>Checkout:</strong> {queriedCheckoutUrl}</p>
               <div className="cta-row">
                 <button
                   type="button"
                   className="link-button ghost"
                   onClick={async () => {
                     try {
-                      await navigator.clipboard.writeText(queriedLink.checkoutUrl);
+                      await navigator.clipboard.writeText(queriedCheckoutUrl);
                       setCopiedLink(true);
                       setTimeout(() => setCopiedLink(false), 2500);
                     } catch {
