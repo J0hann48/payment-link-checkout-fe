@@ -25,6 +25,21 @@ export function CardForm({ disabled, onSubmit, errors, onFieldEdit }: Props) {
   const [yearError, setYearError] = useState<string | null>(null);
   const [generalError, setGeneralError] = useState<string | null>(null);
 
+  function isValidLuhn(value: string) {
+    let sum = 0;
+    let shouldDouble = false;
+    for (let i = value.length - 1; i >= 0; i -= 1) {
+      let digit = Number(value[i]);
+      if (shouldDouble) {
+        digit *= 2;
+        if (digit > 9) digit -= 9;
+      }
+      sum += digit;
+      shouldDouble = !shouldDouble;
+    }
+    return sum % 10 === 0;
+  }
+
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (disabled) return;
@@ -32,6 +47,10 @@ export function CardForm({ disabled, onSubmit, errors, onFieldEdit }: Props) {
     const cleanNumber = number.replace(/\s+/g, "");
     if (!/^\d{16}$/.test(cleanNumber)) {
       setNumberError("El numero debe tener exactamente 16 digitos");
+      return;
+    }
+    if (!isValidLuhn(cleanNumber)) {
+      setNumberError("El numero de tarjeta no es valido");
       return;
     }
 
@@ -62,7 +81,8 @@ export function CardForm({ disabled, onSubmit, errors, onFieldEdit }: Props) {
           value={number}
           onChange={(e) => {
             const digitsOnly = e.target.value.replace(/\D/g, "").slice(0, 16);
-            setNumber(digitsOnly);
+            const formatted = digitsOnly.replace(/(\d{4})(?=\d)/g, "$1 ").trim();
+            setNumber(formatted);
             if (numberError || errors?.number) setNumberError(null);
             if (digitsOnly.length > 0 && digitsOnly.length < 16) {
               setNumberError("El numero debe tener exactamente 16 digitos");
@@ -72,8 +92,7 @@ export function CardForm({ disabled, onSubmit, errors, onFieldEdit }: Props) {
           placeholder="4242 4242 4242 4242"
           inputMode="numeric"
           autoComplete="cc-number"
-          minLength={16}
-          maxLength={16}
+          maxLength={19}
           disabled={disabled}
           required
         />
