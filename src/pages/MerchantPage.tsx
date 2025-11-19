@@ -83,6 +83,13 @@ export function MerchantPage() {
     return null;
   }
 
+  function sanitizeAmountInput(value: string) {
+    const cleaned = value.replace(/[^0-9.]/g, "");
+    const [whole = "", decimals] = cleaned.split(".");
+    const next = decimals !== undefined ? `${whole}.${decimals.slice(0, 2)}` : whole;
+    return next;
+  }
+
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
     const expError = validateExpiry(expiresAt);
@@ -238,12 +245,12 @@ export function MerchantPage() {
                 <label>Monto</label>
                 <input
                   type="number"
-                  step="1"
+                  step="0.01"
                   min="0"
+                  inputMode="decimal"
                   value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
+                  onChange={(e) => setAmount(sanitizeAmountInput(e.target.value))}
                   required
-                  inputMode="numeric"
                 />
               </div>
               <div className="field">
@@ -372,16 +379,18 @@ export function MerchantPage() {
 
           {editingSlug && (
             <div className="edit-form">
-              <h3>Editar link: {editingSlug}</h3>
               <form className="merchant-form" onSubmit={handleUpdate}>
                 <div className="field-row">
                   <div className="field">
                     <label>Monto</label>
                     <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      inputMode="decimal"
                       value={editAmount}
-                      onChange={(e) => setEditAmount(e.target.value)}
+                      onChange={(e) => setEditAmount(sanitizeAmountInput(e.target.value))}
                       required
-                      inputMode="numeric"
                     />
                   </div>
                   <div className="field">
