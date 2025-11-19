@@ -7,9 +7,8 @@ export function resolveCheckoutUrl(checkoutUrl: string, slug?: string) {
     const url = new URL(checkoutUrl, base);
 
     const hasCheckoutSegment = url.pathname.startsWith("/checkout/");
-    const hasSlugInline = slug && url.pathname.replace(/^\/+/, "").startsWith(slug);
 
-    if (slug && !hasCheckoutSegment && !hasSlugInline) {
+    if (slug && !hasCheckoutSegment) {
       url.pathname = `/checkout/${slug}`;
     }
 

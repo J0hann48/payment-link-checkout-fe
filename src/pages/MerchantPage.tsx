@@ -294,8 +294,6 @@ export function MerchantPage() {
           {createdLink && (
             <div className="result-card">
               <StatusBanner type="success" message="Link creado" />
-              <p><strong>Slug:</strong> {createdLink.slug}</p>
-              <p><strong>Checkout URL:</strong> {createdCheckoutUrl}</p>
               <div className="cta-row">
                 <button
                   type="button"
