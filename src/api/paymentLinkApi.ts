@@ -54,13 +54,25 @@ export async function createPaymentLink(
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
+  }).catch(() => {
+    throw new Error("No hay conexion con el servidor");
   });
 
-  if (!res.ok) {
-    throw new Error("Error creando payment link");
+  let data: any = null;
+  try {
+    data = await res.json();
+  } catch {
+    // ignore parse errors
   }
 
-  return res.json();
+  if (!res.ok) {
+    const err: any = new Error(data?.message ?? "No se pudo crear el payment link");
+    if (data?.code) err.code = data.code;
+    throw err;
+  }
+
+  const fee = data?.feeBreakdown ?? data?.feePreview;
+  return { ...(data ?? {}), feeBreakdown: fee };
 }
 
 // 2. Consultar Payment Link por slug (checkout)
@@ -179,19 +191,44 @@ export async function updatePaymentLink(
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
+  }).catch(() => {
+    throw new Error("No hay conexion con el servidor");
   });
-  if (!res.ok) {
-    throw new Error("No se pudo actualizar el payment link");
+
+  let data: any = null;
+  try {
+    data = await res.json();
+  } catch {
+    // ignore parse errors
   }
-  const data = await res.json();
-  return { ...data, feeBreakdown: data.feeBreakdown ?? data.feePreview };
+
+  if (!res.ok) {
+    const err: any = new Error(data?.message ?? "No se pudo actualizar el payment link");
+    if (data?.code) err.code = data.code;
+    throw err;
+  }
+
+  const fee = data?.feeBreakdown ?? data?.feePreview;
+  return { ...(data ?? {}), feeBreakdown: fee };
 }
 
 export async function deletePaymentLink(slug: string, merchantId: number): Promise<void> {
   const res = await fetch(`${API_BASE_URL}/payment-links/${slug}?merchantId=${merchantId}`, {
     method: "DELETE",
+  }).catch(() => {
+    throw new Error("No hay conexion con el servidor");
   });
+
+  let data: any = null;
+  try {
+    data = await res.json();
+  } catch {
+    // ignore parse errors
+  }
+
   if (!res.ok) {
-    throw new Error("No se pudo eliminar el payment link");
+    const err: any = new Error(data?.message ?? "No se pudo eliminar el payment link");
+    if (data?.code) err.code = data.code;
+    throw err;
   }
 }

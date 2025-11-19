@@ -56,6 +56,17 @@ export function MerchantPage() {
   const [editError, setEditError] = useState<string | null>(null);
   const [updating, setUpdating] = useState<boolean>(false);
   const [deletingSlug, setDeletingSlug] = useState<string | null>(null);
+  const [copiedLink, setCopiedLink] = useState<boolean>(false);
+
+  function normalizeError(err: any, fallback: string) {
+    if (err?.code === "MERCHANT_NOT_FOUND") {
+      return err?.message ?? "Merchant no encontrado";
+    }
+    if (err?.message?.includes("conexion")) {
+      return "No hay conexion con el servidor";
+    }
+    return err?.message ?? fallback;
+  }
 
   function validateExpiry(value: string) {
     if (!value) return null;
@@ -99,8 +110,7 @@ export function MerchantPage() {
       await loadList();
     } catch (err: any) {
       console.error(err);
-      const msg = err?.message?.includes("conexion") ? "No hay conexion con el servidor" : err?.message;
-      setCreateError(msg ?? "No se pudo crear el payment link");
+      setCreateError(normalizeError(err, "No se pudo crear el payment link"));
     } finally {
       setCreating(false);
     }
@@ -117,8 +127,7 @@ export function MerchantPage() {
       setQueriedLink(res);
     } catch (err: any) {
       console.error(err);
-      const msg = err?.message?.includes("conexion") ? "No hay conexion con el servidor" : err?.message;
-      setQueryError(msg ?? "No se pudo cargar el link");
+      setQueryError(normalizeError(err, "No se pudo cargar el link"));
     } finally {
       setQuerying(false);
     }
@@ -132,8 +141,7 @@ export function MerchantPage() {
       setLinks(res);
     } catch (err: any) {
       console.error(err);
-      const msg = err?.message?.includes("conexion") ? "No hay conexion con el servidor" : err?.message;
-      setListError(msg ?? "No se pudo cargar la lista");
+      setListError(normalizeError(err, "No se pudo cargar la lista"));
     } finally {
       setListing(false);
     }
@@ -182,8 +190,7 @@ export function MerchantPage() {
       clearEdit();
     } catch (err: any) {
       console.error(err);
-      const msg = err?.message?.includes("conexion") ? "No hay conexion con el servidor" : err?.message;
-      setEditError(msg ?? "No se pudo actualizar el link");
+      setEditError(normalizeError(err, "No se pudo actualizar el link"));
     } finally {
       setUpdating(false);
     }
@@ -196,8 +203,7 @@ export function MerchantPage() {
       await loadList();
     } catch (err: any) {
       console.error(err);
-      const msg = err?.message?.includes("conexion") ? "No hay conexion con el servidor" : err?.message;
-      setListError(msg ?? "No se pudo eliminar el link");
+      setListError(normalizeError(err, "No se pudo eliminar el link"));
     } finally {
       setDeletingSlug(null);
     }
@@ -248,6 +254,9 @@ export function MerchantPage() {
               <div className="field">
                 <label>Monto</label>
                 <input
+                  type="number"
+                  step="1"
+                  min="0"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   required
@@ -305,6 +314,21 @@ export function MerchantPage() {
               <p><strong>Slug:</strong> {createdLink.slug}</p>
               <p><strong>Checkout URL:</strong> {createdLink.checkoutUrl}</p>
               <div className="cta-row">
+                <button
+                  type="button"
+                  className="link-button ghost"
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(createdLink.checkoutUrl);
+                      setCopiedLink(true);
+                      setTimeout(() => setCopiedLink(false), 2500);
+                    } catch {
+                      setCopiedLink(false);
+                    }
+                  }}
+                >
+                  {copiedLink ? "Link copiado" : "Copiar link"}
+                </button>
                 <Link className="link-button" to={`/checkout/${createdLink.slug}`}>
                   Ir al checkout (tokenizar)
                 </Link>
