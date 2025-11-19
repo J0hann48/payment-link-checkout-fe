@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
 import {
   createPaymentLink,
-  getPaymentLinkBySlug,
   listAllPaymentLinks,
   updatePaymentLink,
   deletePaymentLink,
@@ -41,10 +40,6 @@ export function MerchantPage() {
   const [createError, setCreateError] = useState<string | null>(null);
   const [createdLink, setCreatedLink] = useState<PaymentLinkView | null>(null);
 
-  const [querySlug, setQuerySlug] = useState("f70ecc91f9");
-  const [querying, setQuerying] = useState(false);
-  const [queryError, setQueryError] = useState<string | null>(null);
-  const [queriedLink, setQueriedLink] = useState<PaymentLinkView | null>(null);
   const [links, setLinks] = useState<PaymentLinkView[]>([]);
   const [listError, setListError] = useState<string | null>(null);
   const [listing, setListing] = useState<boolean>(false);
@@ -59,13 +54,8 @@ export function MerchantPage() {
   const [copiedLink, setCopiedLink] = useState<boolean>(false);
 
   const createdCheckoutUrl = useMemo(
-    () => (createdLink ? resolveCheckoutUrl(createdLink.checkoutUrl) : ""),
+    () => (createdLink ? resolveCheckoutUrl(createdLink.checkoutUrl, createdLink.slug) : ""),
     [createdLink]
-  );
-
-  const queriedCheckoutUrl = useMemo(
-    () => (queriedLink ? resolveCheckoutUrl(queriedLink.checkoutUrl) : ""),
-    [queriedLink]
   );
 
   function normalizeError(err: any, fallback: string) {
@@ -123,23 +113,6 @@ export function MerchantPage() {
       setCreateError(normalizeError(err, "No se pudo crear el payment link"));
     } finally {
       setCreating(false);
-    }
-  }
-
-  async function handleQuery(e: React.FormEvent) {
-    e.preventDefault();
-    setQuerying(true);
-    setQueryError(null);
-    setQueriedLink(null);
-
-    try {
-      const res = await getPaymentLinkBySlug(querySlug.trim());
-      setQueriedLink(res);
-    } catch (err: any) {
-      console.error(err);
-      setQueryError(normalizeError(err, "No se pudo cargar el link"));
-    } finally {
-      setQuerying(false);
     }
   }
 
@@ -344,59 +317,6 @@ export function MerchantPage() {
                 <>
                   <p><strong>Tarifas previas:</strong></p>
                   <FeeBreakdown fee={createdLink.feeBreakdown} />
-                </>
-              )}
-            </div>
-          )}
-        </div>
-
-        <div className="panel">
-          <h2>Consultar payment link</h2>
-          <form className="merchant-form" onSubmit={handleQuery}>
-            <div className="field">
-              <label>Slug</label>
-              <input
-                value={querySlug}
-                onChange={(e) => setQuerySlug(e.target.value)}
-                required
-              />
-            </div>
-            <button type="submit" disabled={querying}>
-              {querying ? "Consultando..." : "Consultar"}
-            </button>
-          </form>
-
-          {queryError && <StatusBanner type="error" message={queryError} />}
-          {queriedLink && (
-            <div className="result-card">
-              <StatusBanner type="info" message="Link encontrado" />
-              <p><strong>Slug:</strong> {queriedLink.slug}</p>
-              <p>
-                <strong>Monto:</strong> {queriedLink.amount} {queriedLink.currency}
-              </p>
-              <p><strong>Status:</strong> {queriedLink.status}</p>
-              <p><strong>Checkout:</strong> {queriedCheckoutUrl}</p>
-              <div className="cta-row">
-                <button
-                  type="button"
-                  className="link-button ghost"
-                  onClick={async () => {
-                    try {
-                      await navigator.clipboard.writeText(queriedCheckoutUrl);
-                      setCopiedLink(true);
-                      setTimeout(() => setCopiedLink(false), 2500);
-                    } catch {
-                      setCopiedLink(false);
-                    }
-                  }}
-                >
-                  {copiedLink ? "Link copiado" : "Copiar link completo"}
-                </button>
-              </div>
-              {queriedLink.feeBreakdown && (
-                <>
-                  <p><strong>Tarifas:</strong></p>
-                  <FeeBreakdown fee={queriedLink.feeBreakdown} />
                 </>
               )}
             </div>
