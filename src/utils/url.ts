@@ -7,7 +7,7 @@ export function resolveCheckoutUrl(checkoutUrl: string, slug?: string) {
     const url = new URL(checkoutUrl, base);
 
     const hasCheckoutSegment = url.pathname.startsWith("/checkout/");
-    const hasSlugInline = slug && url.pathname.replace(/^\\/+/, "").startsWith(slug);
+    const hasSlugInline = slug && url.pathname.replace(/^\/+/, "").startsWith(slug);
 
     if (slug && !hasCheckoutSegment && !hasSlugInline) {
       url.pathname = `/checkout/${slug}`;
@@ -16,7 +16,7 @@ export function resolveCheckoutUrl(checkoutUrl: string, slug?: string) {
     return url.toString();
   } catch {
     if (slug) {
-      const cleanBase = base.replace(/\\/$/, "");
+      const cleanBase = base.replace(/\/$/, "");
       return `${cleanBase}/checkout/${slug}`;
     }
     return checkoutUrl;
