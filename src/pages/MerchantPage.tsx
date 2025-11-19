@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
 import {
   createPaymentLink,
   getPaymentLinkBySlug,
@@ -327,11 +326,8 @@ export function MerchantPage() {
                     }
                   }}
                 >
-                  {copiedLink ? "Link copiado" : "Copiar link"}
+                  {copiedLink ? "Link copiado" : "Copiar link completo"}
                 </button>
-                <Link className="link-button" to={`/checkout/${createdLink.slug}`}>
-                  Ir al checkout (tokenizar)
-                </Link>
               </div>
               {createdLink.feeBreakdown && (
                 <>
@@ -370,9 +366,21 @@ export function MerchantPage() {
               <p><strong>Status:</strong> {queriedLink.status}</p>
               <p><strong>Checkout:</strong> {queriedLink.checkoutUrl}</p>
               <div className="cta-row">
-                <Link className="link-button" to={`/checkout/${queriedLink.slug}`}>
-                  Ir al checkout (tokenizar)
-                </Link>
+                <button
+                  type="button"
+                  className="link-button ghost"
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(queriedLink.checkoutUrl);
+                      setCopiedLink(true);
+                      setTimeout(() => setCopiedLink(false), 2500);
+                    } catch {
+                      setCopiedLink(false);
+                    }
+                  }}
+                >
+                  {copiedLink ? "Link copiado" : "Copiar link completo"}
+                </button>
               </div>
               {queriedLink.feeBreakdown && (
                 <>
